@@ -3,20 +3,42 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: F1 Draft League API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
+  - name: users
+    description: User management
+  - name: seasons
+    description: F1 Seasons
+  - name: gps
+    description: Grand Prix events
+  - name: drivers
+    description: F1 Drivers
+  - name: teams
+    description: F1 Constructor Teams
+  - name: drafts
+    description: User draft picks per GP
+  - name: leagues
+    description: Fantasy leagues
+  - name: friends
+    description: Friend system
+  - name: scores
+    description: Scoring and rankings
+  - name: admin
+    description: Admin operations
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +46,1943 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # AUTH
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Bad request
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Unauthorized
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: OK
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+
+  # USERS
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "404":
+          description: Not found
+
+    patch:
+      operationId: updateUser
+      tags: [users]
+      summary: Update user profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users/by-handle/{handle}:
+    get:
+      operationId: getUserByHandle
+      tags: [users]
+      summary: Get user by @handle
+      parameters:
+        - name: handle
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "404":
+          description: Not found
+
+  # SEASONS
+  /seasons:
+    get:
+      operationId: listSeasons
+      tags: [seasons]
+      summary: List all seasons
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Season"
+
+    post:
+      operationId: createSeason
+      tags: [seasons]
+      summary: Create season (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SeasonInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Season"
+
+  /seasons/current:
+    get:
+      operationId: getCurrentSeason
+      tags: [seasons]
+      summary: Get current active season
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Season"
+
+  /seasons/{id}:
+    get:
+      operationId: getSeason
+      tags: [seasons]
+      summary: Get season by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Season"
+
+    patch:
+      operationId: updateSeason
+      tags: [seasons]
+      summary: Update season (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SeasonUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Season"
+
+  # GRAND PRIX
+  /seasons/{seasonId}/gps:
+    get:
+      operationId: listGPs
+      tags: [gps]
+      summary: List all GPs for a season
+      parameters:
+        - name: seasonId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GrandPrix"
+
+    post:
+      operationId: createGP
+      tags: [gps]
+      summary: Create GP (admin)
+      parameters:
+        - name: seasonId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GrandPrixInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GrandPrix"
+
+  /gps/{id}:
+    get:
+      operationId: getGP
+      tags: [gps]
+      summary: Get GP by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GrandPrix"
+
+    patch:
+      operationId: updateGP
+      tags: [gps]
+      summary: Update GP (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GrandPrixUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GrandPrix"
+
+  /gps/{id}/sync:
+    post:
+      operationId: syncGPData
+      tags: [gps]
+      summary: Sync GP data from OpenF1 API (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SyncResult"
+
+  /gps/{id}/results:
+    get:
+      operationId: getGPResults
+      tags: [gps]
+      summary: Get GP results including race, quali, sprint, pit stops
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GPResults"
+
+    post:
+      operationId: upsertGPResults
+      tags: [gps]
+      summary: Upsert GP results (admin manual override)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GPResultsInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GPResults"
+
+  /gps/next:
+    get:
+      operationId: getNextGP
+      tags: [gps]
+      summary: Get next upcoming GP
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GrandPrix"
+
+  # DRIVERS
+  /drivers:
+    get:
+      operationId: listDrivers
+      tags: [drivers]
+      summary: List all drivers (optionally filter by season)
+      parameters:
+        - name: seasonId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Driver"
+
+    post:
+      operationId: createDriver
+      tags: [drivers]
+      summary: Create driver (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DriverInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Driver"
+
+  /drivers/{id}:
+    get:
+      operationId: getDriver
+      tags: [drivers]
+      summary: Get driver by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Driver"
+
+    patch:
+      operationId: updateDriver
+      tags: [drivers]
+      summary: Update driver (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DriverUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Driver"
+
+  # CONSTRUCTOR TEAMS
+  /constructor-teams:
+    get:
+      operationId: listConstructorTeams
+      tags: [teams]
+      summary: List all constructor teams
+      parameters:
+        - name: seasonId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConstructorTeam"
+
+    post:
+      operationId: createConstructorTeam
+      tags: [teams]
+      summary: Create constructor team (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConstructorTeamInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConstructorTeam"
+
+  /constructor-teams/{id}:
+    get:
+      operationId: getConstructorTeam
+      tags: [teams]
+      summary: Get constructor team by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConstructorTeam"
+
+    patch:
+      operationId: updateConstructorTeam
+      tags: [teams]
+      summary: Update constructor team (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConstructorTeamUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConstructorTeam"
+
+  # DRAFTS (picks per GP)
+  /gps/{gpId}/draft:
+    get:
+      operationId: getMyDraft
+      tags: [drafts]
+      summary: Get current user's draft for a GP
+      parameters:
+        - name: gpId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Draft"
+        "404":
+          description: No draft yet
+
+    put:
+      operationId: saveDraft
+      tags: [drafts]
+      summary: Save/update draft for a GP (before lock time)
+      parameters:
+        - name: gpId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DraftInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Draft"
+        "400":
+          description: Budget exceeded or draft locked
+
+  /gps/{gpId}/drafts/scores:
+    get:
+      operationId: getGPDraftScores
+      tags: [drafts]
+      summary: Get all draft scores for a GP (after results)
+      parameters:
+        - name: gpId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DraftScore"
+
+  /gps/{gpId}/draft/breakdown:
+    get:
+      operationId: getMyDraftBreakdown
+      tags: [drafts]
+      summary: Get detailed scoring breakdown for my draft in a GP
+      parameters:
+        - name: gpId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DraftBreakdown"
+
+  # LEAGUES
+  /leagues:
+    get:
+      operationId: listLeagues
+      tags: [leagues]
+      summary: List public leagues (searchable)
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+        - name: seasonId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/League"
+
+    post:
+      operationId: createLeague
+      tags: [leagues]
+      summary: Create a league
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeagueInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/League"
+
+  /leagues/my:
+    get:
+      operationId: getMyLeagues
+      tags: [leagues]
+      summary: Get leagues I'm in
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/League"
+
+  /leagues/factory:
+    get:
+      operationId: getFactoryLeague
+      tags: [leagues]
+      summary: Get the global factory league standings
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeagueStandings"
+
+  /leagues/{id}:
+    get:
+      operationId: getLeague
+      tags: [leagues]
+      summary: Get league by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/League"
+        "404":
+          description: Not found
+
+    patch:
+      operationId: updateLeague
+      tags: [leagues]
+      summary: Update league (owner only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeagueUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/League"
+
+    delete:
+      operationId: deleteLeague
+      tags: [leagues]
+      summary: Delete league (owner only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  /leagues/{id}/join:
+    post:
+      operationId: joinLeague
+      tags: [leagues]
+      summary: Join a public league
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+
+  /leagues/{id}/leave:
+    post:
+      operationId: leaveLeague
+      tags: [leagues]
+      summary: Leave a league
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+
+  /leagues/join-by-invite/{inviteCode}:
+    post:
+      operationId: joinLeagueByInvite
+      tags: [leagues]
+      summary: Join a private league by invite code
+      parameters:
+        - name: inviteCode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/League"
+        "404":
+          description: Invalid invite code
+
+  /leagues/{id}/standings:
+    get:
+      operationId: getLeagueRankings
+      tags: [leagues]
+      summary: Get league standings
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeagueStandings"
+
+  /leagues/{id}/members:
+    get:
+      operationId: getLeagueMembers
+      tags: [leagues]
+      summary: Get league members
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LeagueMember"
+
+  /leagues/{id}/kick/{userId}:
+    delete:
+      operationId: kickLeagueMember
+      tags: [leagues]
+      summary: Kick member from league (owner only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Kicked
+
+  # FRIENDS
+  /friends:
+    get:
+      operationId: listFriends
+      tags: [friends]
+      summary: List my friends
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Friend"
+
+  /friends/requests:
+    get:
+      operationId: listFriendRequests
+      tags: [friends]
+      summary: List incoming friend requests
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FriendRequest"
+
+  /friends/send:
+    post:
+      operationId: sendFriendRequest
+      tags: [friends]
+      summary: Send friend request by @handle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FriendRequestInput"
+      responses:
+        "200":
+          description: OK
+
+  /friends/requests/{requestId}/accept:
+    post:
+      operationId: acceptFriendRequest
+      tags: [friends]
+      summary: Accept a friend request
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+
+  /friends/requests/{requestId}/reject:
+    post:
+      operationId: rejectFriendRequest
+      tags: [friends]
+      summary: Reject a friend request
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+
+  /friends/{userId}:
+    delete:
+      operationId: removeFriend
+      tags: [friends]
+      summary: Remove a friend
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Removed
+
+  # SCORES
+  /scores/global:
+    get:
+      operationId: getGlobalRanking
+      tags: [scores]
+      summary: Get global season ranking
+      parameters:
+        - name: seasonId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RankingEntry"
+
+  /scores/me:
+    get:
+      operationId: getMyScoreSummary
+      tags: [scores]
+      summary: Get my score summary for current season
+      parameters:
+        - name: seasonId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScoreSummary"
+
+  /scores/gp/{gpId}:
+    get:
+      operationId: getGPScoreboard
+      tags: [scores]
+      summary: Get scoreboard for a specific GP
+      parameters:
+        - name: gpId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RankingEntry"
+
+  # ADMIN
+  /admin/stats:
+    get:
+      operationId: getAdminStats
+      tags: [admin]
+      summary: Get admin dashboard stats
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStats"
+
+  /admin/users:
+    get:
+      operationId: adminListUsers
+      tags: [admin]
+      summary: List all users (admin)
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedUsers"
+
+  /admin/scoring-rules:
+    get:
+      operationId: getScoringRules
+      tags: [admin]
+      summary: Get scoring rules configuration
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScoringRules"
+
+    put:
+      operationId: updateScoringRules
+      tags: [admin]
+      summary: Update scoring rules (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScoringRulesInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScoringRules"
+
+  /admin/recalculate/{gpId}:
+    post:
+      operationId: recalculateGPScores
+      tags: [admin]
+      summary: Recalculate all scores for a GP (admin)
+      parameters:
+        - name: gpId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SyncResult"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    # AUTH
+    RegisterInput:
+      type: object
+      required: [email, password, handle, displayName]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+          minLength: 6
+        handle:
+          type: string
+          minLength: 3
+        displayName:
+          type: string
+
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    AuthResponse:
+      type: object
+      required: [user, token]
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+
+    # USERS
+    User:
+      type: object
+      required: [id, email, handle, displayName, budget, isAdmin, createdAt]
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        handle:
+          type: string
+        displayName:
+          type: string
+        avatarUrl:
+          type: ["string", "null"]
+        budget:
+          type: number
+        bonusBudget:
+          type: number
+        isAdmin:
+          type: boolean
+        createdAt:
+          type: string
+
+    UserProfile:
+      type: object
+      required: [id, handle, displayName, createdAt]
+      properties:
+        id:
+          type: string
+        handle:
+          type: string
+        displayName:
+          type: string
+        avatarUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    UserUpdate:
+      type: object
+      properties:
+        displayName:
+          type: string
+        avatarUrl:
+          type: ["string", "null"]
+
+    # SEASONS
+    Season:
+      type: object
+      required: [id, year, name, isActive, baseBudget, createdAt]
+      properties:
+        id:
+          type: string
+        year:
+          type: integer
+        name:
+          type: string
+        isActive:
+          type: boolean
+        baseBudget:
+          type: number
+        createdAt:
+          type: string
+
+    SeasonInput:
+      type: object
+      required: [year, name, baseBudget]
+      properties:
+        year:
+          type: integer
+        name:
+          type: string
+        baseBudget:
+          type: number
+        isActive:
+          type: boolean
+
+    SeasonUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        isActive:
+          type: boolean
+        baseBudget:
+          type: number
+
+    # GRAND PRIX
+    GrandPrix:
+      type: object
+      required: [id, seasonId, name, round, country, circuitName, raceDate, status, draftLockTime, createdAt]
+      properties:
+        id:
+          type: string
+        seasonId:
+          type: string
+        name:
+          type: string
+        round:
+          type: integer
+        country:
+          type: string
+        circuitName:
+          type: string
+        raceDate:
+          type: string
+        hasSprint:
+          type: boolean
+        draftLockTime:
+          type: string
+        status:
+          type: string
+          enum: [upcoming, locked, in_progress, completed]
+        openf1MeetingKey:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+
+    GrandPrixInput:
+      type: object
+      required: [name, round, country, circuitName, raceDate, draftLockTime]
+      properties:
+        name:
+          type: string
+        round:
+          type: integer
+        country:
+          type: string
+        circuitName:
+          type: string
+        raceDate:
+          type: string
+        hasSprint:
+          type: boolean
+        draftLockTime:
+          type: string
+        openf1MeetingKey:
+          type: ["integer", "null"]
+
+    GrandPrixUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        country:
+          type: string
+        circuitName:
+          type: string
+        raceDate:
+          type: string
+        hasSprint:
+          type: boolean
+        draftLockTime:
+          type: string
+        status:
+          type: string
+          enum: [upcoming, locked, in_progress, completed]
+        openf1MeetingKey:
+          type: ["integer", "null"]
+
+    GPResults:
+      type: object
+      required: [gpId]
+      properties:
+        gpId:
+          type: string
+        raceResults:
+          type: array
+          items:
+            $ref: "#/components/schemas/DriverResult"
+        qualiResults:
+          type: array
+          items:
+            $ref: "#/components/schemas/DriverResult"
+        sprintResults:
+          type: array
+          items:
+            $ref: "#/components/schemas/DriverResult"
+        pitStopResults:
+          type: array
+          items:
+            $ref: "#/components/schemas/PitStopResult"
+        teamStandingResults:
+          type: array
+          items:
+            $ref: "#/components/schemas/TeamStandingResult"
+
+    GPResultsInput:
+      type: object
+      required: [gpId]
+      properties:
+        gpId:
+          type: string
+        raceResults:
+          type: array
+          items:
+            $ref: "#/components/schemas/DriverResult"
+        qualiResults:
+          type: array
+          items:
+            $ref: "#/components/schemas/DriverResult"
+        sprintResults:
+          type: array
+          items:
+            $ref: "#/components/schemas/DriverResult"
+        pitStopResults:
+          type: array
+          items:
+            $ref: "#/components/schemas/PitStopResult"
+        teamStandingResults:
+          type: array
+          items:
+            $ref: "#/components/schemas/TeamStandingResult"
+
+    DriverResult:
+      type: object
+      required: [driverId, position]
+      properties:
+        driverId:
+          type: string
+        position:
+          type: ["integer", "null"]
+        fastestLap:
+          type: boolean
+        pole:
+          type: boolean
+        dnf:
+          type: boolean
+        dnfReason:
+          type: ["string", "null"]
+        overtakes:
+          type: ["integer", "null"]
+        gridPosition:
+          type: ["integer", "null"]
+
+    PitStopResult:
+      type: object
+      required: [constructorTeamId, pitDurationMs, rank]
+      properties:
+        constructorTeamId:
+          type: string
+        pitDurationMs:
+          type: integer
+        rank:
+          type: integer
+        isNegative:
+          type: boolean
+
+    TeamStandingResult:
+      type: object
+      required: [constructorTeamId, position]
+      properties:
+        constructorTeamId:
+          type: string
+        position:
+          type: integer
+
+    SyncResult:
+      type: object
+      required: [success, message]
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        updatedCount:
+          type: integer
+
+    # DRIVERS
+    Driver:
+      type: object
+      required: [id, seasonId, name, number, nationality, constructorTeamId, price, createdAt]
+      properties:
+        id:
+          type: string
+        seasonId:
+          type: string
+        name:
+          type: string
+        shortName:
+          type: string
+        number:
+          type: integer
+        nationality:
+          type: string
+        constructorTeamId:
+          type: string
+        constructorTeamName:
+          type: string
+        price:
+          type: number
+        priceChange:
+          type: number
+        imageUrl:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+
+    DriverInput:
+      type: object
+      required: [seasonId, name, number, nationality, constructorTeamId, price]
+      properties:
+        seasonId:
+          type: string
+        name:
+          type: string
+        shortName:
+          type: string
+        number:
+          type: integer
+        nationality:
+          type: string
+        constructorTeamId:
+          type: string
+        price:
+          type: number
+        imageUrl:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+
+    DriverUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        shortName:
+          type: string
+        price:
+          type: number
+        imageUrl:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+
+    # CONSTRUCTOR TEAMS
+    ConstructorTeam:
+      type: object
+      required: [id, seasonId, name, shortName, nationality, price, createdAt]
+      properties:
+        id:
+          type: string
+        seasonId:
+          type: string
+        name:
+          type: string
+        shortName:
+          type: string
+        nationality:
+          type: string
+        color:
+          type: ["string", "null"]
+        price:
+          type: number
+        priceChange:
+          type: number
+        imageUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    ConstructorTeamInput:
+      type: object
+      required: [seasonId, name, shortName, nationality, price]
+      properties:
+        seasonId:
+          type: string
+        name:
+          type: string
+        shortName:
+          type: string
+        nationality:
+          type: string
+        color:
+          type: ["string", "null"]
+        price:
+          type: number
+        imageUrl:
+          type: ["string", "null"]
+
+    ConstructorTeamUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        shortName:
+          type: string
+        color:
+          type: ["string", "null"]
+        price:
+          type: number
+        imageUrl:
+          type: ["string", "null"]
+
+    # DRAFTS
+    Draft:
+      type: object
+      required: [id, userId, gpId, driver1Id, driver2Id, driver3Id, constructorTeamId, totalCost, isLocked, createdAt]
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        gpId:
+          type: string
+        driver1Id:
+          type: string
+        driver2Id:
+          type: string
+        driver3Id:
+          type: string
+        reserveDriverId:
+          type: ["string", "null"]
+        constructorTeamId:
+          type: string
+        totalCost:
+          type: number
+        isLocked:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    DraftInput:
+      type: object
+      required: [driver1Id, driver2Id, driver3Id, constructorTeamId]
+      properties:
+        driver1Id:
+          type: string
+        driver2Id:
+          type: string
+        driver3Id:
+          type: string
+        reserveDriverId:
+          type: ["string", "null"]
+        constructorTeamId:
+          type: string
+
+    DraftScore:
+      type: object
+      required: [userId, userHandle, displayName, totalPoints]
+      properties:
+        userId:
+          type: string
+        userHandle:
+          type: string
+        displayName:
+          type: string
+        avatarUrl:
+          type: ["string", "null"]
+        totalPoints:
+          type: number
+        rank:
+          type: integer
+
+    DraftBreakdown:
+      type: object
+      required: [draftId, gpId, totalPoints, lineItems]
+      properties:
+        draftId:
+          type: string
+        gpId:
+          type: string
+        totalPoints:
+          type: number
+        reserveActivated:
+          type: boolean
+        lineItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScoreLineItem"
+
+    ScoreLineItem:
+      type: object
+      required: [entity, entityType, event, points]
+      properties:
+        entity:
+          type: string
+        entityType:
+          type: string
+          enum: [driver, constructor_team, reserve_driver]
+        event:
+          type: string
+        points:
+          type: number
+
+    # LEAGUES
+    League:
+      type: object
+      required: [id, name, isPublic, inviteCode, ownerId, seasonId, memberCount, createdAt]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        isPublic:
+          type: boolean
+        inviteCode:
+          type: string
+        ownerId:
+          type: string
+        ownerHandle:
+          type: string
+        seasonId:
+          type: string
+        memberCount:
+          type: integer
+        isFactory:
+          type: boolean
+        createdAt:
+          type: string
+
+    LeagueInput:
+      type: object
+      required: [name, isPublic, seasonId]
+      properties:
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        isPublic:
+          type: boolean
+        seasonId:
+          type: string
+
+    LeagueUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        isPublic:
+          type: boolean
+
+    LeagueStandings:
+      type: object
+      required: [leagueId, leagueName, seasonId, entries]
+      properties:
+        leagueId:
+          type: string
+        leagueName:
+          type: string
+        seasonId:
+          type: string
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/RankingEntry"
+
+    LeagueMember:
+      type: object
+      required: [userId, handle, displayName, joinedAt]
+      properties:
+        userId:
+          type: string
+        handle:
+          type: string
+        displayName:
+          type: string
+        avatarUrl:
+          type: ["string", "null"]
+        joinedAt:
+          type: string
+        isOwner:
+          type: boolean
+
+    # FRIENDS
+    Friend:
+      type: object
+      required: [userId, handle, displayName, since]
+      properties:
+        userId:
+          type: string
+        handle:
+          type: string
+        displayName:
+          type: string
+        avatarUrl:
+          type: ["string", "null"]
+        since:
+          type: string
+
+    FriendRequest:
+      type: object
+      required: [id, fromUserId, fromHandle, fromDisplayName, createdAt]
+      properties:
+        id:
+          type: string
+        fromUserId:
+          type: string
+        fromHandle:
+          type: string
+        fromDisplayName:
+          type: string
+        fromAvatarUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    FriendRequestInput:
+      type: object
+      required: [handle]
+      properties:
+        handle:
+          type: string
+
+    # SCORES
+    RankingEntry:
+      type: object
+      required: [rank, userId, handle, displayName, totalPoints]
+      properties:
+        rank:
+          type: integer
+        userId:
+          type: string
+        handle:
+          type: string
+        displayName:
+          type: string
+        avatarUrl:
+          type: ["string", "null"]
+        totalPoints:
+          type: number
+        gpCount:
+          type: integer
+        bonusBudget:
+          type: number
+
+    ScoreSummary:
+      type: object
+      required: [userId, seasonId, totalPoints, rank, gpBreakdown]
+      properties:
+        userId:
+          type: string
+        seasonId:
+          type: string
+        totalPoints:
+          type: number
+        rank:
+          type: integer
+        totalUsers:
+          type: integer
+        budget:
+          type: number
+        bonusBudget:
+          type: number
+        gpBreakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/GPPointEntry"
+
+    GPPointEntry:
+      type: object
+      required: [gpId, gpName, round, points]
+      properties:
+        gpId:
+          type: string
+        gpName:
+          type: string
+        round:
+          type: integer
+        points:
+          type: number
+        rank:
+          type: integer
+
+    # ADMIN
+    AdminStats:
+      type: object
+      required: [totalUsers, totalLeagues, totalDrafts, activeSeason]
+      properties:
+        totalUsers:
+          type: integer
+        totalLeagues:
+          type: integer
+        totalDrafts:
+          type: integer
+        activeSeason:
+          type: ["string", "null"]
+        upcomingGP:
+          type: ["string", "null"]
+        lastSyncedAt:
+          type: ["string", "null"]
+
+    PaginatedUsers:
+      type: object
+      required: [users, total, page, pageSize]
+      properties:
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+
+    ScoringRules:
+      type: object
+      required: [id, racePoints, qualiPoints, sprintPoints, fastestLapPoints, polePoints, dnfPenalty, overtakePoints, crashPenalty, pitStopTopPoints, pitStopBottomPenalty, constructorTopPoints, constructorBottomPenalty, updatedAt]
+      properties:
+        id:
+          type: string
+        racePoints:
+          type: object
+          additionalProperties:
+            type: number
+        qualiPoints:
+          type: object
+          additionalProperties:
+            type: number
+        sprintPoints:
+          type: object
+          additionalProperties:
+            type: number
+        fastestLapPoints:
+          type: number
+        polePoints:
+          type: number
+        dnfPenalty:
+          type: number
+        overtakePoints:
+          type: number
+        crashPenalty:
+          type: number
+        pitStopTopPoints:
+          type: number
+        pitStopBottomPenalty:
+          type: number
+        constructorTopPoints:
+          type: number
+        constructorBottomPenalty:
+          type: number
+        updatedAt:
+          type: string
+
+    ScoringRulesInput:
+      type: object
+      properties:
+        racePoints:
+          type: object
+          additionalProperties:
+            type: number
+        qualiPoints:
+          type: object
+          additionalProperties:
+            type: number
+        sprintPoints:
+          type: object
+          additionalProperties:
+            type: number
+        fastestLapPoints:
+          type: number
+        polePoints:
+          type: number
+        dnfPenalty:
+          type: number
+        overtakePoints:
+          type: number
+        crashPenalty:
+          type: number
+        pitStopTopPoints:
+          type: number
+        pitStopBottomPenalty:
+          type: number
+        constructorTopPoints:
+          type: number
+        constructorBottomPenalty:
+          type: number

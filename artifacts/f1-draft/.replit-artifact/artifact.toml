@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "F1 Draft League"
+version = "1.0.0"
+id = "artifacts/f1-draft"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 26183
+
+[services.development]
+run = "pnpm --filter @workspace/f1-draft run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/f1-draft", "run", "build" ]
+publicDir = "artifacts/f1-draft/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "26183"
+BASE_PATH = "/"
