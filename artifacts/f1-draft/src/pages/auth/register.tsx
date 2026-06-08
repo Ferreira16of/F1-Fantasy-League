@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Flag, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const registerSchema = z.object({
@@ -55,9 +55,8 @@ export default function Register() {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <Link href="/">
-            <div className="inline-flex items-center justify-center gap-2 text-primary font-black text-3xl tracking-tighter italic cursor-pointer">
-              <Flag className="h-8 w-8" />
-              F1 DRAFT
+            <div className="inline-flex items-center justify-center cursor-pointer">
+              <img src="/logo.png" alt="F1 Draft League" className="h-20 w-20 object-contain" />
             </div>
           </Link>
           <h2 className="mt-6 text-3xl font-bold">Criar Equipe</h2>

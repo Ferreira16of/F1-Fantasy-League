@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { LogOut, Menu, User, Shield, Trophy, Users, LayoutDashboard, Calendar, Flag } from "lucide-react";
+import { LogOut, Menu, User, Shield, Trophy, Users, LayoutDashboard } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
 
@@ -43,9 +43,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Mobile Header */}
       <header className="md:hidden flex items-center justify-between p-4 border-b border-border bg-card">
         <Link href="/dashboard">
-          <div className="flex items-center gap-2 text-primary font-bold text-xl tracking-tighter">
-            <Flag className="h-6 w-6" />
-            F1 DRAFT
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="F1 Draft League" className="h-10 w-10 object-contain" />
+            <span className="text-primary font-black text-xl tracking-tighter italic">F1 DRAFT</span>
           </div>
         </Link>
         <Sheet open={open} onOpenChange={setOpen}>
@@ -56,9 +56,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </SheetTrigger>
           <SheetContent side="left" className="w-[280px] bg-card border-r-border p-0 flex flex-col">
             <div className="p-4 border-b border-border">
-              <div className="flex items-center gap-2 text-primary font-bold text-2xl tracking-tighter">
-                <Flag className="h-6 w-6" />
-                F1 DRAFT
+              <div className="flex items-center gap-2">
+                <img src="/logo.png" alt="F1 Draft League" className="h-10 w-10 object-contain" />
+                <span className="text-primary font-black text-2xl tracking-tighter italic">F1 DRAFT</span>
               </div>
             </div>
             <nav className="flex-1 p-4 space-y-2">
@@ -93,9 +93,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <aside className="hidden md:flex w-64 flex-col bg-card border-r border-border h-screen sticky top-0">
         <div className="p-6 border-b border-border">
           <Link href="/dashboard">
-            <div className="flex items-center gap-2 text-primary font-black text-2xl tracking-tighter italic cursor-pointer">
-              <Flag className="h-7 w-7" />
-              F1 DRAFT
+            <div className="flex items-center gap-2 cursor-pointer">
+              <img src="/logo.png" alt="F1 Draft League" className="h-12 w-12 object-contain" />
+              <span className="text-primary font-black text-2xl tracking-tighter italic">F1 DRAFT</span>
             </div>
           </Link>
         </div>
