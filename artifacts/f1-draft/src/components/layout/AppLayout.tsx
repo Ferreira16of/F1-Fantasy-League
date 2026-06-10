@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { LogOut, Menu, User, Shield, Trophy, Users, LayoutDashboard } from "lucide-react";
+import { LogOut, Menu, User, Shield, Trophy, Users, LayoutDashboard, Flag } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
 
