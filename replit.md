@@ -64,6 +64,7 @@ Fantasy F1 game in PT-BR where users draft 3 drivers + 1 constructor team per GP
 - After adding new DB tables: run `pnpm run typecheck:libs` to rebuild lib declarations before typechecking leaf packages
 - After editing `lib/db/src/schema/`: run `pnpm --filter @workspace/db run push` to apply to DB
 - After editing `lib/api-spec/openapi.yaml`: run `pnpm --filter @workspace/api-spec run codegen`
+- **Seed script must run from `artifacts/api-server/` dir** (not scripts/): `cd artifacts/api-server && DATABASE_URL="$DATABASE_URL" /home/runner/workspace/scripts/node_modules/.bin/tsx ../../scripts/src/seed.ts` — tsx resolves `drizzle-orm` from the file's dir, and only api-server has it installed
 - `useGetGlobalRanking`, `useGetMyScoreSummary`, `useListDrivers`, `useListConstructorTeams`, `useListLeagues` all take params as first argument (even if undefined) and options as second
 - `useSaveDraft` requires `{ gpId, data: DraftInput }` — gpId is in the mutation args, not a path param
 - `useSyncGPData` requires `{ id: string }` (the GP id), `useRecalculateGPScores` requires `{ gpId: string }`

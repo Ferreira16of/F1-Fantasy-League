@@ -1,0 +1,1 @@
+- [Seed script cwd](seed-cwd.md) — seed.ts must run from artifacts/api-server/ dir; tsx resolves drizzle-orm from file location, only api-server has it.

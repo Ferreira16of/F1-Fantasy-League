@@ -38,22 +38,22 @@ export default function Home() {
           <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
             O fantasy game definitivo de F1. Escale seus pilotos, escolha sua equipe e compita pelo campeonato mundial.
           </p>
-          <div className="flex items-center justify-center gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 w-full max-w-sm mx-auto sm:max-w-none">
             {user ? (
-              <Link href="/dashboard">
-                <Button size="lg" className="text-lg px-8 h-14 uppercase font-bold italic tracking-wider">
+              <Link href="/dashboard" className="w-full sm:w-auto">
+                <Button size="lg" className="w-full text-lg px-8 h-14 uppercase font-bold italic tracking-wider">
                   Ir para o Dashboard
                 </Button>
               </Link>
             ) : (
               <>
-                <Link href="/register">
-                  <Button size="lg" className="text-lg px-8 h-14 uppercase font-bold italic tracking-wider">
+                <Link href="/register" className="w-full sm:w-auto">
+                  <Button size="lg" className="w-full text-lg px-8 h-14 uppercase font-bold italic tracking-wider">
                     Criar Equipe
                   </Button>
                 </Link>
-                <Link href="/login">
-                  <Button variant="outline" size="lg" className="text-lg px-8 h-14 uppercase font-bold italic tracking-wider">
+                <Link href="/login" className="w-full sm:w-auto">
+                  <Button variant="outline" size="lg" className="w-full text-lg px-8 h-14 uppercase font-bold italic tracking-wider">
                     Entrar
                   </Button>
                 </Link>

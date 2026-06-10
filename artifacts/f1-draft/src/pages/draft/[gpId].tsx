@@ -166,17 +166,40 @@ export default function DraftPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-black uppercase italic tracking-tighter">Draft: {gp.name}</h1>
-          <p className="text-muted-foreground">{gp.circuitName}</p>
+    <div className="space-y-6 pb-24 md:pb-0">
+      <div className="flex flex-wrap gap-2 justify-between items-start">
+        <div className="min-w-0">
+          <h1 className="text-2xl md:text-3xl font-black uppercase italic tracking-tighter truncate">Draft: {gp.name}</h1>
+          <p className="text-muted-foreground text-sm">{gp.circuitName}</p>
         </div>
         {isLocked && (
-          <div className="bg-destructive/20 text-destructive px-4 py-2 rounded-lg font-bold flex items-center gap-2 uppercase tracking-wider">
-            <AlertCircle className="h-5 w-5" /> Mercado Fechado
+          <div className="bg-destructive/20 text-destructive px-3 py-1.5 rounded-lg font-bold flex items-center gap-2 uppercase tracking-wider text-sm flex-shrink-0">
+            <AlertCircle className="h-4 w-4" /> Mercado Fechado
           </div>
         )}
+      </div>
+
+      {/* Mobile sticky bottom bar */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border p-3 flex items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>Pilotos: {selectedDrivers.length}/3</span>
+            <span className={budgetRemaining < 0 ? 'text-destructive' : 'text-green-500'}>
+              Saldo: ${budgetRemaining.toFixed(1)}M
+            </span>
+          </div>
+          <div className="w-full bg-secondary rounded-full h-1.5 mt-1">
+            <div className={`h-1.5 rounded-full transition-all ${budgetRemaining < 0 ? 'bg-destructive' : 'bg-primary'}`} style={{ width: `${Math.min(100, (totalCost / budget) * 100)}%` }} />
+          </div>
+        </div>
+        <Button
+          size="sm"
+          className="uppercase font-bold italic tracking-wider flex-shrink-0"
+          onClick={handleSave}
+          disabled={isLocked || budgetRemaining < 0 || saveDraftMutation.isPending || selectedDrivers.length !== 3 || !selectedTeam || !isReserveValid}
+        >
+          {saveDraftMutation.isPending ? '...' : 'Salvar'}
+        </Button>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
